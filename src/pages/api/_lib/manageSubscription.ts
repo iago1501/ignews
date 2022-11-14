@@ -7,12 +7,14 @@ export async function saveSubscription(
   customerId: string,
   createAction = false,
 ) {
+
   const userRef = await fauna.query(
     q.Select(
       "ref",
       q.Get(
         q.Match(
-          q.Index('user_by_stripe_customer_id', customerId)
+          q.Index('user_by_stripe_customer_id',
+          customerId)
         )
       )
     )

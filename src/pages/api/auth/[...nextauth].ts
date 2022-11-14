@@ -3,6 +3,14 @@ import NextAuth, { NextAuthOptions } from "next-auth";
 import GithubProvider from "next-auth/providers/github";
 import { fauna } from "../../../services/fauna";
 
+
+interface userSession{
+  ref: string;
+  data: {
+    email: string
+  }
+}
+
 export const authOptions: NextAuthOptions = {
   providers: [
     GithubProvider({
@@ -12,6 +20,47 @@ export const authOptions: NextAuthOptions = {
     }),
   ],
   callbacks: {
+    
+    async session({session}) {
+      try{
+
+        const userByEmail = await fauna.query<userSession>(
+          q.Get(
+            q.Match(
+              q.Index('user_by_email'),
+              q.Casefold(session.user.email)
+            )
+          )
+        )
+        
+        console.log(userByEmail.ref)
+
+        const userActiveSubscription = await fauna.query(
+          q.Get(
+            q.Intersection([
+              q.Match(
+                q.Index('subscription_by_user_ref'),
+                userByEmail.ref
+              ),
+              q.Match(
+                q.Index('subscription_by_status'),
+                "active"
+              )
+            ])
+          )
+        )
+        return {
+          ...session,
+          activeSubscription: userActiveSubscription
+        }
+      } catch {
+        return {
+          ...session,
+          activeSubscription: null
+        }
+      }
+    },
+
     async signIn({ user, account, profile }) {
       const { email } = user;
 

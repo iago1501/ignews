@@ -24,7 +24,7 @@ export default async function subscribe (req: NextApiRequest, res: NextApiRespon
       return;
     }
 
-    console.log(session)
+    // console.log(session)
 
     const user = await fauna.query<User>(
       q.Get(

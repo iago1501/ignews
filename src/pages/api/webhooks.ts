@@ -46,10 +46,10 @@ export default async function webhooks(
       return res.status(400).send(`Webhook error: ${err.message}`);
     }
 
-    const { type } = event;
+    const { type } = event;    
 
     if (relevantEvents.has(type)) {
-      let shouldCreateSubscription = true
+      let shouldCreateSubscription = true      
       try {
         switch (type) {
           
