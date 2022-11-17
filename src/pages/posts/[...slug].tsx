@@ -3,7 +3,7 @@ import { unstable_getServerSession } from "next-auth"
 import Head from "next/head";
 import { RichText } from "prismic-dom";
 import { getPrismicClient } from "../../services/prismic";
-import { authOptions }  from '../api/auth/[...nextauth]';
+import { authOptions, SessionProps }  from '../api/auth/[...nextauth]';
 import styles from './post.module.scss'
 
 
@@ -16,7 +16,7 @@ interface PostProps {
   }
 }
 
-export default function Post({post}) {
+export default function Post({post}:PostProps) {
   return (
     <>
       <Head>
@@ -35,14 +35,18 @@ export default function Post({post}) {
 
 export const getServerSideProps: GetServerSideProps = async ({ req, res, params }) => {
   
-  const session = await unstable_getServerSession(req, res, authOptions)
+  const session: SessionProps = await unstable_getServerSession(req, res, authOptions)
   const { slug } = params;
+  
 
-  console.log(session)
-
-  // if(!session){
-
-  // }
+  if(!session.activeSubscription){
+    return {
+      redirect: {
+        destination: '/',
+        permanent: false
+      }
+    }
+  }
 
   const prismic = getPrismicClient()
 
@@ -58,8 +62,6 @@ export const getServerSideProps: GetServerSideProps = async ({ req, res, params 
         year: 'numeric'
       })
   }
-
-  // console.log(post)
 
   return {
     props: {   
