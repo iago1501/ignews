@@ -5,7 +5,7 @@ import { api } from '../../services/api'
 import { getStripeJs } from '../../services/stripe-js'
 import styles from './styles.module.scss'
 
-interface UserSession extends Session {
+export interface UserSession extends Session {
   activeSubscription: object 
 }
 
@@ -23,7 +23,7 @@ export function SubscribeButton() {
       return
     }    
 
-    if (session.activeSubscription) {
+    if (session?.activeSubscription) {
       router.push('/posts')
       return
     }
